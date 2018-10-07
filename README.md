@@ -1,2 +1,2 @@
-# searchEngine
-Made as a school project
+# Minimalist Search Engine
+Made as a school project using Python. 
