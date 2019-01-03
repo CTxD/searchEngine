@@ -21,7 +21,7 @@ except:
 
 # Init the crawler with the set of urls
 crawler = Crawler.Crawler(url_set)
-crawler_result = crawler.crawl(3, False)
+crawler_result = crawler.crawl(2, False)
 
 
 next = crawler_result.next()

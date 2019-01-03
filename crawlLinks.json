@@ -3,6 +3,10 @@
         "http://www.google.dk/",
         "http://www.facebook.com/",
         "https://stackoverflow.com/",
-        "http://slightlysarcastic.net/"
+        "http://slightlysarcastic.net/",
+        "https://superuser.com",
+        "https://datascience.stackexchange.com",
+        "https://mathoverflow.net",
+        "https://askubuntu.com"
     ]
 }
