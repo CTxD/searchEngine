@@ -1,2 +1,5 @@
 # crawl output file - Should be ignored.
 crawlContent.json
+
+# pyc metafiles
+*.pyc

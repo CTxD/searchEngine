@@ -44,3 +44,4 @@ class Node:
 
     def appendChild(self, node):
         self.children.append(node)
+

@@ -23,8 +23,8 @@ def editDistance(doc1, doc2):
 
 def processJaccardSimilarity(shrinkle1, shrinkle2):
     # Get intersection and unions
-    union_length = len(shrinkle1 | shrinkle2)
-    intersection_length = len(shrinkle1 & shrinkle2)
+    union_length = len(shrinkle1 | shrinkle2) # Intersection
+    intersection_length = len(shrinkle1 & shrinkle2) # Union
 
     similarity = float(intersection_length) / float(union_length)
 

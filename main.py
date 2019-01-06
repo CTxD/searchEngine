@@ -5,7 +5,7 @@ import bfs as Bfs
 
 
 # Set of urls, that we want to crawl
-url_set = set()
+urlSet = set()
 
 # Import the urls from crawlLinks.json file
 try:
@@ -13,14 +13,14 @@ try:
         data = json.load(inFile)
     
     for url in data["urls"]:
-        url_set.add(url)
+        urlSet.add(url)
 except:
     EnvironmentError("An error occured!")
 
 
 
 # Init the crawler with the set of urls
-crawler = Crawler.Crawler(url_set)
+crawler = Crawler.Crawler(urlSet)
 crawler_result = crawler.crawl(2, False)
 
 saveData = list()
