@@ -59,7 +59,7 @@ class Crawler:
 
             # Add to sites to crawl
             for link in final_links:
-                node.appendChild(Bfs.Node(node, {"url": link, "content": ""}))
+                node.appendChild(Bfs.Node(node, {"url": link, "content": node.data}))
 
             if doPoliteness:
                 sleep(.5)
