@@ -3,7 +3,7 @@ from copy import copy
 class Tree:
     def __init__(self, urlList):
         # Initialize the root of the tree and the depth
-        self.root = Node(None, "root")
+        self.root = Node(None, {"url": "root", "content": "root"}, 0)
         self.depth = 1
         
         # Initialize frontier
@@ -27,27 +27,25 @@ class Tree:
         else:
             return None
 
+    def visitedNodes(self):
+        returnList = []
+        returnList.append(self.root)
+        
+        i = 0
+        while self.frontier[i].depth < self.depth:
+            for child in returnList[i].children: 
+                if child.data["content"] == "": # Check if node is valid
+                    return returnList
+                
+                returnList.append(child) # Append node to end of returnList
+
+            i += 1 # Increment node
+
+        return returnList
+
 class Node:
     def __init__(self, parent, data, depth=-1):
         self.parent = parent
         self.data = data
         self.children = []
         self.depth=-1
-
-tree = Tree([])
-
-r = Node(tree.root, "r")
-n1 = Node(r, "n1")
-n2 = Node(n1, "n2")
-n3 = Node(n2, "n3")
-n4 = Node(n3, "n4")
-
-tree.root.children.append(r)
-r.children.append(n1)
-n1.children.append(n2)
-n2.children.append(n3)
-n3.children.append(n4)
-
-print("D:")
-for child in n3.children:
-    print("CD:", child.data)

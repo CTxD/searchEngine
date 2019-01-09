@@ -1,8 +1,6 @@
 import json
 
-import crawler as Crawler
-import bfs as Bfs
-
+from crawler import Crawler
 
 # Set of urls, that we want to crawl
 urlSet = set()
@@ -15,31 +13,24 @@ try:
     for url in data["urls"]:
         urlSet.add(url)
 except:
-    EnvironmentError("An error occured!")
-
-
+    EnvironmentError("crawlLinks.json could not be loaded")
 
 # Init the crawler with the set of urls
-crawler = Crawler.Crawler(urlSet)
-crawler_result = crawler.crawl(2, False)
-
-saveData = list()
-
-next = crawler_result.next()
-while next != None:
-    print(next.data["url"])
-
-    saveData.append({"url": next.data["url"], "content": next.data["content"]})
-
-    next = crawler_result.next()
+crawler = Crawler(urlSet)
+crawlResult = crawler.crawl(50, False)
 
 print("Crawling done!\nDumping to crawlContent.json...")
+
+saveData = []
+
+for child in crawlResult.visitedNodes():
+    print(child.data["url"])
+    saveData.append(child.data) # Dump to save object
 
 try:
     with open("crawlContent.json", 'wb') as outFile:
         json.dump(saveData, outFile)
-        outFile.truncate()
 except:
-    pass
+    EnvironmentError("Save content could not be saved")
 
 print("Saved successfully!")

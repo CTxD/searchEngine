@@ -1,70 +1,78 @@
 from time import sleep
-import urllib2
-import validators
 from bs4 import BeautifulSoup
 
+import urllib2
+import validators
+import threading
+
+from bfs2 import Tree, Node
 import editDistance as EditDistance
-import bfs as Bfs
 
 class Crawler:
     def __init__(self, url_set):
-        self.tree = Bfs.Tree()
-
-        root_node = self.tree.next()
-
-        for url in url_set:
-            root_node.appendChild(Bfs.Node(root_node, {"url": url, "content": ""}))
+        self.tree = Tree(url_set)
 
 
-    def crawl(self, depth, doPoliteness=True):
+    def crawl(self, depth, doPoliteness=False):
         # Fetch list of sites to crawl
 
         ## Repeat this ->
         # Choose one site to crawl
         while self.tree.depth < depth:
-            node = self.tree.next()
-            if node == None:
-                return self.tree
+            node = self.tree.nextNode() # Set the node to the next in the frontier
             
-            next_site = node.data["url"]
-
-            # Get site restrictions
-            site_restrictions = self.getSiteRestrictions(next_site)
-
-            # Push site links, if they are not restricted
-            try:
-                response = urllib2.urlopen(next_site)
-                source = response.read()
-            except urllib2.HTTPError:
-                pass
-                
-            soup = BeautifulSoup(source, "html.parser")
-
-            outgoing_links = set()
-            ingoing_links = set()
-            for link in soup.find_all('a'):
-                try:
-                    #Identify outgoing links
-                    if validators.url(link.get("href")) == True:
-                        outgoing_links.add(link.get("href"))
-                    else:
-                        ingoing_links.add(link.get("href"))
-                except TypeError:
-                    pass
-
-            node.data = {"url": next_site, "content": source}
-
-            # Update sites_to_crawl
-            final_links = outgoing_links - site_restrictions
-
-            # Add to sites to crawl
-            for link in final_links:
-                node.appendChild(Bfs.Node(node, {"url": link, "content": node.data}))
+            if node == None:
+                return self.tree # If the frontier is empty => Return the tree
+            
+            a = threading._start_new_thread(self.updateNodeContentAndLink(node), None)
 
             if doPoliteness:
                 sleep(.5)
 
         return self.tree
+
+    def updateNodeContentAndLink(self, node):
+        next_site = node.data["url"]
+
+        # Get site restrictions
+        site_restrictions = self.getSiteRestrictions(next_site)
+
+        # Push site links, if they are not restricted
+        try:
+            response = urllib2.urlopen(next_site)
+            source = response.read()
+        except urllib2.HTTPError:
+            pass
+                
+        soup = BeautifulSoup(source, "html.parser")
+
+        outgoing_links = set()
+        ingoing_links = set()
+        for link in soup.find_all('a'):
+            try:
+                #Identify outgoing links
+                if validators.url(link.get("href")) == True:
+                    outgoing_links.add(link.get("href"))
+                else:
+                    ingoing_links.add(link.get("href"))
+            except TypeError:
+                pass
+
+        node.data = {"url": next_site, "content": source}
+
+        # Update sites_to_crawl
+        final_links = outgoing_links - site_restrictions
+
+        # Add to sites to crawl
+        if node.depth == -1: # If the node is in a new layer => Update depths
+            self.tree.depth += 1
+            node.depth = self.tree.depth
+
+        for link in final_links:
+            newNode = Node(node, {"url": link, "content": ""}, self.tree.depth)
+            node.children.append(newNode)
+            self.tree.frontier.append(newNode)
+        
 
     # Do edit distance on url_content_list
     def nearDuplicates(self, url_contents_list):
