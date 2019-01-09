@@ -24,7 +24,9 @@ class Crawler:
             if node == None:
                 return self.tree # If the frontier is empty => Return the tree
             
-            a = threading._start_new_thread(self.updateNodeContentAndLink(node), None)
+            self.updateNodeContentAndLink(node)
+
+            #a = threading._start_new_thread(self.updateNodeContentAndLink(node), None)
 
             if doPoliteness:
                 sleep(.5)
@@ -42,7 +44,7 @@ class Crawler:
             response = urllib2.urlopen(next_site)
             source = response.read()
         except urllib2.HTTPError:
-            pass
+            return
                 
         soup = BeautifulSoup(source, "html.parser")
 
@@ -58,7 +60,9 @@ class Crawler:
             except TypeError:
                 pass
 
-        node.data = {"url": next_site, "content": source}
+        content = soup.get_text()
+
+        node.data = {"url": next_site, "content": content}
 
         # Update sites_to_crawl
         final_links = outgoing_links - site_restrictions
