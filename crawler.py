@@ -39,12 +39,14 @@ class Crawler:
         # Get site restrictions
         site_restrictions = self.getSiteRestrictions(next_site)
 
+        source = ""
+
         # Push site links, if they are not restricted
         try:
             response = urllib2.urlopen(next_site)
             source = response.read()
         except urllib2.HTTPError:
-            return
+            pass
                 
         soup = BeautifulSoup(source, "html.parser")
 
@@ -136,7 +138,7 @@ class Crawler:
                 except UnicodeDecodeError:
                     pass
         except urllib2.HTTPError:
-            pass
+            return set()
 
         # return set of all restrictions
         return restrictions

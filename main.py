@@ -17,7 +17,7 @@ except:
 
 # Init the crawler with the set of urls
 crawler = Crawler(urlSet)
-crawlResult = crawler.crawl(50, False)
+crawlResult = crawler.crawl(20, False)
 
 print("Crawling done!\nDumping to crawlContent.json...")
 
@@ -34,3 +34,4 @@ except:
     EnvironmentError("Save content could not be saved")
 
 print("Saved successfully!")
+print(len(saveData))
