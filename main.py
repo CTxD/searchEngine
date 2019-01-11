@@ -17,14 +17,13 @@ except:
 
 # Init the crawler with the set of urls
 crawler = Crawler(urlSet)
-crawlResult = crawler.crawl(20, False)
+crawlResult = crawler.crawl(50, False)
 
 print("Crawling done!\nDumping to crawlContent.json...")
 
 saveData = []
 
 for child in crawlResult.visitedNodes():
-    print(child.data["url"])
     saveData.append(child.data) # Dump to save object
 
 try:
@@ -34,4 +33,4 @@ except:
     EnvironmentError("Save content could not be saved")
 
 print("Saved successfully!")
-print(len(saveData))
+print("Number of pages: " + str(len(saveData)))

@@ -28,18 +28,15 @@ class Tree:
             return None
 
     def visitedNodes(self):
-        print(self.depth)
         returnList = []
         returnList.append(self.root)
         
         i = 0
         try:
-            while self.frontier[i].depth < self.depth:
-                for child in returnList[i].children: 
-                    if child.data["content"] == "": # Check if node is valid
-                        pass
-                    
-                    returnList.append(child) # Append node to end of returnList
+            while self.frontier[i].depth < self.depth - 2:
+                for child in returnList[i].children:
+                    if(child.data["content"] != ""): 
+                        returnList.append(child) # Append node to end of returnList
 
                 i += 1 # Increment node
         except IndexError:

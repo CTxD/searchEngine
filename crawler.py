@@ -13,19 +13,17 @@ class Crawler:
         self.tree = Tree(url_set)
 
 
-    def crawl(self, depth, doPoliteness=False):
-        # Fetch list of sites to crawl
-
-        ## Repeat this ->
-        # Choose one site to crawl
+    def crawl(self, depth, doPoliteness=False): # The actual crawling function
         while self.tree.depth < depth:
-            node = self.tree.nextNode() # Set the node to the next in the frontier
+            node = self.tree.nextNode()
             
             if node == None:
                 return self.tree # If the frontier is empty => Return the tree
             
             self.updateNodeContentAndLink(node)
 
+
+            # Space for multithreading the updateNodeAndContent function, to populate nodes more quickly
             #a = threading._start_new_thread(self.updateNodeContentAndLink(node), None)
 
             if doPoliteness:
@@ -62,9 +60,9 @@ class Crawler:
             except TypeError:
                 pass
 
-        content = soup.get_text()
+        content = soup.text
 
-        node.data = {"url": next_site, "content": content}
+        node.data = {"url": next_site, "content": content.replace("\n", " ").replace("\r", " ").replace("{", "")}
 
         # Update sites_to_crawl
         final_links = outgoing_links - site_restrictions
