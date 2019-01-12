@@ -2,9 +2,16 @@ import json
 
 class Indexer:
     def __init__(self):
-        self.docs = self.initDocs()
-        self.stripContentsOfDocs()
-    
+        self.docIdList = []
+        self.docs = self.initDocs() # All the documents and their content, this is persistent, meaning that it can be used for DocID's too
+        
+        self.table = [[]]
+        del self.table[0]
+
+        self.tokenize()
+
+        self.buildFrequencies()
+
     # Init the crawled json file
     def initDocs(self): 
         with open("crawlContent.json") as json_file:
@@ -12,34 +19,66 @@ class Indexer:
         
         del data[0] # Delete the "root" data entry
 
+        for entry in data:
+            self.docIdList.append(entry["url"]) # Init the list of DocId's
+
         return data
 
-    def stripContentsOfDocs(self):
+    def tokenize(self):
         stopwords = []
         docs = self.docs
 
         with open("stopwords.json") as stopwords_file:
             stopwords = json.load(stopwords_file)["words"]
 
-        for i in range(1, len(self.docs)):
-            doc = self.docs[i]["content"]
+        for i in range(0, len(self.docs)):
+            doc = self.docs[i]["content"] # Get the content of i - document
 
-            newDocs = []
-            token = ""
-            for char in doc:
+            token = "" # Empty token init
+            limit = 0
+            for char in doc: # Tokenizing the document
+                if limit > 1000: # This is done to limit the number of keywords for each doc (They got too big :o)
+                    break
                 if(char.isalnum()):
                     token += char
                 else:
-                    if token != "" and (e for e in stopwords if e != token):
-                        newDocs.append(token)
+                    if token != "" and (e for e in stopwords if e != token): # Check if the token is either invalid or in the stopword list
+                        self.table.append([token, 0, set([i])]) # Saving the token in the table for later - [0]: token, [1]: frequency, [2][0]: docId
                     token = ""
+                    limit += 1
+                
+    # Merge duplicates of keywords, and count them as frequencies
+    def buildFrequencies(self):
+        # But first, we sort!
+        self.table = sorted(self.table, key=lambda element: (element[0], element[2])) # First we sort after [0]: keyword and then [2]: docId
 
-        with open("contentEdited.json", 'wb') as outFile:
-            json.dump(newDocs, outFile)
+        for i in range(0, len(self.table)): # Check for each row
+            if i + 1 == len(self.table): # Terminate when we reach the end
+                break
 
+            keyword1 = self.table[i][0]
+            frequency1 = self.table[i][1]
+            docSet1 = self.table[i][2]
 
+            delNum = 0 # We need to keep track of how many we have deleted!
+            newDocSet = docSet1
+            for j in range(i+1, len(self.table) - delNum - 1): # But only going forward
 
-    def tokenize(self, doc):
-        return
+                keyword2 = self.table[j - delNum][0]
+
+                if keyword1 == keyword2:
+                    frequency1 += 1
+                    newDocSet = set.union(newDocSet, self.table[j-delNum][2]) # Union the docId from the set that is to be deleted
+
+                    del self.table[j - delNum] # Delete the second keyword
+                    delNum += 1
+                else:
+                    break
+
+            self.table[i][1] = frequency1 # Update the frequency
+            self.table[i][2] = newDocSet # Update the docId's
+
 
 indexer = Indexer()
+print("Table length:", len(indexer.table))
+print(indexer.table[473][2])
