@@ -1,5 +1,5 @@
 # crawl output file - Should be ignored.
-crawlContent.json
+*.json
 
 # pyc metafiles
 *.pyc
