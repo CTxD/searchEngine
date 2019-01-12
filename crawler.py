@@ -60,9 +60,9 @@ class Crawler:
             except TypeError:
                 pass
 
-        content = soup.text
+        content = ''.join(e for e in soup.text if e.isalnum() or " ")
 
-        node.data = {"url": next_site, "content": content.replace("\n", " ").replace("\r", " ").replace("{", "")}
+        node.data = {"url": next_site, "content": content.lower()}
 
         # Update sites_to_crawl
         final_links = outgoing_links - site_restrictions
