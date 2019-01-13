@@ -8,9 +8,9 @@ class Indexer:
         self.table = [[]]
         del self.table[0]
 
-        self.tokenize()
+        self.tokenize() # Make the tokenized (term, freq, (ids)) list
 
-        self.buildFrequencies()
+        self.buildFrequencies() # Trim the table and add frequencies!
 
     # Init the crawled json file
     def initDocs(self): 
@@ -37,7 +37,7 @@ class Indexer:
             token = "" # Empty token init
             limit = 0
             for char in doc: # Tokenizing the document
-                if limit > 1000: # This is done to limit the number of keywords for each doc (They got too big :o)
+                if limit > 2000: # This is done to limit the number of keywords for each doc (They got too big :o)
                     break
                 if(char.isalnum()):
                     token += char
@@ -78,7 +78,41 @@ class Indexer:
             self.table[i][1] = frequency1 # Update the frequency
             self.table[i][2] = newDocSet # Update the docId's
 
+    def boolMatchQuery(self, query): # Query processing for not, and, or
+        query = query.split(" ")    
+
+        # A little validation
+        if query[len(query) - 1] == "AND" or query[len(query) - 1] == "OR" or query[len(query) - 1] == "NOT" or query[0] == "AND" or  query[0] == "OR":
+            print("Invalid Query!")
+
+        # Build the predicate
+        predicates = [] # For holding predicates
+        returnFunctions = [] # For holding the set return functions
+        
+        returnDocIds = set() # For populating the set of pages that needs to be returned
+        for i in range(0, len(query)):
+            if query[i] == "NOT": # Not queries
+                predicates.append((lambda entry: entry[0] != query[i])) # If the keyword is not equal to the query word
+            elif query[i] == "OR": # Or queries
+                predicates.append((lambda entry: entry[0] == query[i])) # If the keyword is equal to the query word
+            else: # Any other
+                predicates.append((lambda entry: entry[0] == query[i]))
+
+            returnFunctions.append((lambda entry: set.union(returnDocIds, entry[2]))) # The return function for the query
+
+
+        for entry in self.table: # Check all entries in the table
+            for pred in predicates: # Check all predicates on all entries
+                if pred(entry): # If it is true
+                    returnDocIds = returnFunctions[predicates.index(pred)](entry) # Populate the return site with the return function 
+
+
+        returnLinks = []
+        for index in returnDocIds:
+            returnLinks.append(self.docIdList[index]) # Map all the docIds to links
+
+        return returnLinks # Return the links
 
 indexer = Indexer()
-print("Table length:", len(indexer.table))
-print(indexer.table[473][2])
+print(indexer.table)
+print(indexer.boolMatchQuery("google universalauth"))
