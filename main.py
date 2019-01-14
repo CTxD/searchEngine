@@ -26,6 +26,13 @@ saveData = []
 for child in crawlResult.visitedNodes():
     saveData.append(child.data) # Dump to save object
 
+bLen = len(saveData)
+
+print("Save Data loaded!\nChecking for duplicates...")
+saveData = crawler.nearDuplicates(saveData)
+
+print("Duplicates found: " + str(bLen - len(saveData)))
+
 try:
     with open("crawlContent.json", 'wb') as outFile:
         json.dump(saveData, outFile)

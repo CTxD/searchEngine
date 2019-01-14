@@ -14,11 +14,11 @@ def readTextFromHtml(url):
 
 def editDistance(doc1, doc2):
     # k-shrinkle factor
-    k = 4
+    k = 8
 
     # Process shrinkles of each file
-    set1 = threading._start_new_thread(processShrinkle, (doc1, k))
-    set2 = threading._start_new_thread(processShrinkle, (doc2, k))
+    set1 = processShrinkle(doc1, k)
+    set2 = processShrinkle(doc2, k)
 
     # Get jaccard Similarity of these shrinkles and return
     return processJaccardSimilarity(set1, set2)
