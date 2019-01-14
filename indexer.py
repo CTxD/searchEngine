@@ -1,4 +1,6 @@
 import json
+import copy
+import math
 
 class Indexer:
     def __init__(self):
@@ -43,7 +45,7 @@ class Indexer:
                     token += char
                 else:
                     if token != "" and (e for e in stopwords if e != token): # Check if the token is either invalid or in the stopword list
-                        self.table.append([token, 0, set([i])]) # Saving the token in the table for later - [0]: token, [1]: frequency, [2][0]: docId
+                        self.table.append([token, 0, set([i]), []]) # Saving the token in the table for later - [0]: token, [1]: frequency, [2][i]: docId, [3][i] is the term frequency for doc i
                     token = ""
                     limit += 1
                 
@@ -51,23 +53,35 @@ class Indexer:
     def buildFrequencies(self):
         # But first, we sort!
         self.table = sorted(self.table, key=lambda element: (element[0], element[2])) # First we sort after [0]: keyword and then [2]: docId
-
+        
+        freqList = []
         for i in range(0, len(self.table)): # Check for each row
             if i + 1 == len(self.table): # Terminate when we reach the end
                 break
 
+            frequency = 1
+            freqList = []
+            freqList.append(frequency)
+
             keyword1 = self.table[i][0]
-            frequency1 = self.table[i][1]
             docSet1 = self.table[i][2]
+            docVal1 = copy.copy(docSet1).pop()
 
             delNum = 0 # We need to keep track of how many we have deleted!
             newDocSet = docSet1
+            
             for j in range(i+1, len(self.table) - delNum - 1): # But only going forward
 
                 keyword2 = self.table[j - delNum][0]
+                docVal2 = copy.copy(self.table[j - delNum][2]).pop()
 
                 if keyword1 == keyword2:
-                    frequency1 += 1
+                    if docVal1 == docVal2:
+                        frequency += 1
+                    else:
+                        freqList.append(frequency)
+                        frequency = 0
+
                     newDocSet = set.union(newDocSet, self.table[j-delNum][2]) # Union the docId from the set that is to be deleted
 
                     del self.table[j - delNum] # Delete the second keyword
@@ -75,8 +89,17 @@ class Indexer:
                 else:
                     break
 
-            self.table[i][1] = frequency1 # Update the frequency
+            self.table[i][1] = math.log10(len(self.table)/len(newDocSet)) # Update document frequency - With the idf value
             self.table[i][2] = newDocSet # Update the docId's
+
+            newFreq = []
+            for i in freqList:
+                if i <= 0:
+                    newFreq.append(1)
+                else:
+                    newFreq.append(math.log10(i) + 1)
+
+            self.table[i][3] = newFreq # Update term frequency - With term weight
 
     def boolMatchQuery(self, query): # Query processing for not, and, or
         query = query.split(" ")    
@@ -115,3 +138,8 @@ class Indexer:
 
 indexer = Indexer()
 print(indexer.boolMatchQuery("google universalauth"))
+
+for row in indexer.table:
+    break
+    print("idf: ", row[1], " tf*: ", row[3]) # For ranking!
+    
