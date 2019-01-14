@@ -37,7 +37,7 @@ class Indexer:
             token = "" # Empty token init
             limit = 0
             for char in doc: # Tokenizing the document
-                if limit > 2000: # This is done to limit the number of keywords for each doc (They got too big :o)
+                if limit > 4000: # This is done to limit the number of keywords for each doc (They got too big :o)
                     break
                 if(char.isalnum()):
                     token += char
@@ -114,5 +114,4 @@ class Indexer:
         return returnLinks # Return the links
 
 indexer = Indexer()
-print(indexer.table)
 print(indexer.boolMatchQuery("google universalauth"))
