@@ -97,9 +97,9 @@ class Indexer:
                 if i <= 0:
                     newFreq.append(1)
                 else:
-                    newFreq.append(math.log10(i) + 1)
+                    newFreq.append(i)
 
-            self.table[i][3] = newFreq # Update term frequency - With term weight
+            self.table[i][3] = newFreq # Update term frequency 
 
     def boolMatchQuery(self, query): # Query processing for not, and, or
         query = query.split(" ")    
@@ -137,7 +137,7 @@ class Indexer:
         return returnLinks # Return the links
 
 indexer = Indexer()
-print(indexer.boolMatchQuery("google universalauth"))
+print(indexer.boolMatchQuery("google universalauth math"))
 
 for row in indexer.table:
     break
